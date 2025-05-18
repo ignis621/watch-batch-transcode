@@ -1,0 +1,30 @@
+services:
+  watch-batch-transcode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: watch-batch-transcode
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+      - TZ=Europe/Warsaw
+
+      # - VIDEO_CODEC=libx265
+      # - VIDEO_CRF=24
+      # - VIDEO_PRESET=medium
+
+      # - AUDIO_CODEC=libopus
+      # - AUDIO_BITRATE=96k
+      # - NTFY_TOPIC=replace_with_your_own_topic
+      # - NTFY_SERVER="https://your.ntfy.server"
+      # - DELETE_AFTER=1
+
+    volumes:
+      - ./data/sources:/sources:rw
+      - ./data/sources_processed:/sources_processed:rw
+      - ./data/completed:/completed:rw
+      - ./data/failed:/failed:rw
+      # - ./data/tmp:/tmp:rw
+
+    restart: unless-stopped

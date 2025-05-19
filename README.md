@@ -56,19 +56,19 @@ Configuration is done via environment variables set in the `docker-compose.yaml`
 
 | Environment Variable     | Default Value     | Description |
 | :----------------------- | :---------------- | :---------- |
-| `PUID`<br>`PGID`         | `1000`<br>`1000`  | User ID and Group ID the container will run as. Important for file permissions on mounted volumes. Match this to your host user's UID. Get yours with `id -u` |
+| `PUID`<br>`PGID`         | `1000`<br>`1000`  | User ID and Group ID the container will run as. Important for file permissions on mounted volumes. Match this to your host UIDs. Get yours with `id -u` and `id -g` |
 | `TZ`                     | `Etc/UTC`         | Timezone for correct timestamps in logs (eg. `Europe/Warsaw`, `America/New_York`, `Asia/Tokyo`). [List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) |
-| `VIDEO_CODEC`            | `libx265`         | FFmpeg video codec to use (e.g., `libx265`, `libx264`). [List of codecs](https://ffmpeg.org/ffmpeg-codecs.html#Video-Encoders) |
+| `VIDEO_CODEC`            | `libx265`         | FFmpeg video codec to use (eg. `libx265`, `libx264`). [List of codecs](https://ffmpeg.org/ffmpeg-codecs.html#Video-Encoders) |
 | `VIDEO_CRF`              | `22`              | Constant Rate Factor for video quality. Lower value = higher quality/size. Sane range for `libx265` is 18-24 |
 | `VIDEO_PRESET`           | `medium`          | Encoding preset (speed vs. compression efficiency). Options for `libx265`/`libx264`: `ultrafast`, `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo` |
-| `AUDIO_CODEC`            | `libopus`         | FFmpeg audio codec to use (e.g., `libopus`, `aac`, `ac3`) [List of codecs](https://ffmpeg.org/ffmpeg-codecs.html#Audio-Encoders)  |
-| `AUDIO_BITRATE`          | `96k`             | Audio bitrate (e.g., `96k`, `128k`, `192k`). |
-| `FINAL_VIDEO_CONTAINER`  | `mp4`             | Specifies the final output video container format (e.g., `mp4`, `mkv`, `webm`). Defaults to `mp4`. |
+| `AUDIO_CODEC`            | `libopus`         | FFmpeg audio codec to use (eg. `libopus`, `aac`, `ac3`) [List of codecs](https://ffmpeg.org/ffmpeg-codecs.html#Audio-Encoders)  |
+| `AUDIO_BITRATE`          | `96k`             | Audio bitrate (eg. `96k`, `128k`, `192k`). |
+| `FINAL_VIDEO_CONTAINER`  | `mp4`             | Specifies the final output video container format (eg. `mp4`, `mkv`, `webm`). Defaults to `mp4`. |
 | `OVERRIDE_ENCODE_ARGS`   | *(None)*          | **Advanced:** Completely overrides the encoding arguments. Example: `-c:v libx264 -b:v 2000k -preset slow -c:a aac -b:a 128k`. If set, individual `VIDEO_CODEC`, `VIDEO_CRF`, etc. **are ignored**. |
 | `OVERRIDE_REMUX_ARGS`    | *(None)*          | **Advanced:** Completely overrides the remuxing arguments. Only change if you know exactly what you're doing |
 | `NTFY_TOPIC`             | *(None)*          | **Required for NTFY.** Your [ntfy.sh](https://ntfy.sh/) topic. Uncomment and replace with your topic. |
 | `NTFY_SERVER`            | `https://ntfy.sh` | Custom [ntfy.sh](https://ntfy.sh/) server URL. Use this if you run your own instance. |
-| `DELETE_AFTER`           | *(None)*          | Set to **any non-empty** value (e.g., `1`, `true`) to delete the original source file from `/sources_processed` after successful transcoding. |
+| `DELETE_AFTER`           | *(None)*          | Set to **any non-empty** value (eg. `1`, `true`) to delete the original source file from `/sources_processed` after successful transcoding. |
 
 ## Directory Structure
 

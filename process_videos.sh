@@ -19,6 +19,8 @@ DEFAULT_AUDIO_BITRATE="96k"
 MAX_RETRIES=3 # Total attempts for each file
 RETRY_DELAY_SECONDS=5 # Delay between retries
 
+TEMP_SUFFIXES=("part" "tmp" "temp" "crdownload" "download" "partial")
+
 # >>> Helper functions <<<
 
 # Function to log messages
@@ -57,6 +59,60 @@ ntfy_send() {
     fi
 }
 
+# function to check if a file is ready for processing (not being written to mostly)
+is_file_ready_for_processing() {
+    local file_path="$1"
+    local filename=$(basename "$file_path")
+
+    log_message "Checking readiness for: ${filename}"
+
+    # check for temporary suffixes
+    for suffix in "${TEMP_SUFFIXES[@]}"; do
+        if [[ "$filename" =~ \.${suffix}$ ]]; then
+            log_message "Skipping ${filename}: has temporary suffix '.${suffix}'."
+            return 1 # not ready
+        fi
+    done
+
+    # check if any process has the file open for writing
+    if lsof +w -- "${file_path}" &> /dev/null; then
+        log_message "Skipping ${filename}: file is currently open for writing by another process (lsof check)."
+        return 1 # Not ready
+    fi
+
+    # check initial file size
+    local delay_seconds=2
+    log_message "Checking ${filename}: checking file size stability once after ${delay_seconds}s delay..."
+    local initial_size=$(get_file_size_bytes "${file_path}")
+
+    if [ "${initial_size}" -eq -1 ]; then
+        log_message "Skipping ${filename}: Couldn't get initial file size (file might have disappeared)."
+        return 1 # not ready
+    fi
+
+    if [ "${initial_size}" -eq 0 ]; then
+        log_message "Skipping ${filename}: size is 0 bytes."
+        return 1 # not ready
+    fi
+
+    local current_size="${initial_size}"
+    sleep "${delay_seconds}"
+    local new_size=$(get_file_size_bytes "${file_path}")
+
+    if [ "${new_size}" -eq -1 ]; then
+        log_message "Skipping ${filename}: Couldn't get file size during stability check (file might have disappeared)."
+        return 1 # not rdy
+    fi
+
+    if [ "${new_size}" -ne "${current_size}" ]; then
+        log_message "Skipping ${filename}: size changed during stability check. Still being written? Size change: ${current_size} -> ${new_size}"
+        return 1 # not rdy
+    fi
+
+    log_message "${filename} seems ready for processing (passed all checks)."
+    return 0 # ready
+}
+
 # >>>main script logic<<<
 
 log_message "Starting stuff up"
@@ -73,6 +129,12 @@ while true; do
   FIRST_FILE=$(find "${INPUT_DIR}" -maxdepth 1 -type f -print -quit)
 
   if [ -n "${FIRST_FILE}" ]; then
+
+    if ! is_file_ready_for_processing "${FIRST_FILE}"; then
+      sleep 1
+      continue
+    fi
+
     FILENAME=$(basename "${FIRST_FILE}")
     PROCESSED_FILE_PATH="${SOURCES_PROCESSED_DIR}/${FILENAME}"
     TEMP_MKV_FILE="${TEMP_DIR}/${FILENAME%.*}.mkv"

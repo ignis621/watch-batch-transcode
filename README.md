@@ -54,7 +54,7 @@ It is built on the [linuxserver.io FFmpeg base image](https://github.com/linuxse
 
 Configuration is done via environment variables set in the `docker-compose.yaml` file.
 
-| Environment Variable     | Default Value     | Description |                                                                                                  |
+| Environment Variable     | Default Value     | Description |
 | :----------------------- | :---------------- | :---------- |
 | `PUID`<br>`PGID`         | `1000`<br>`1000`  | User ID and Group ID the container will run as. Important for file permissions on mounted volumes. Match this to your host user's UID. Get yours with `id -u` |
 | `TZ`                     | `Etc/UTC`         | Timezone for correct timestamps in logs (eg. `Europe/Warsaw`, `America/New_York`, `Asia/Tokyo`). [List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) |

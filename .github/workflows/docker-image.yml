@@ -50,7 +50,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker-compose.build.yaml
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
           labels: ${{ steps.meta.outputs.labels }}

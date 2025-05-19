@@ -6,5 +6,4 @@ COPY process_videos.sh .
 
 RUN chmod +x ./process_videos.sh
 
-# ENTRYPOINT ["/bin/bash", "/app/process_videos.sh"]
-CMD ["/app/process_videos.sh"]
+ENTRYPOINT ["/bin/bash", "/app/process_videos.sh"]

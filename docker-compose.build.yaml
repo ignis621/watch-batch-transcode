@@ -1,6 +1,9 @@
 services:
   watch-batch-transcode:
-    image: ignis621/watch-batch-transcode:latest
+    image: ignis621/watch-batch-transcode
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: watch-batch-transcode
     environment:
       # User and group ID for file permissions (important for volume mounts)

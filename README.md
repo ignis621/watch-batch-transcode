@@ -20,40 +20,44 @@ It is built on the [linuxserver.io FFmpeg base image](https://github.com/linuxse
 
 ### Prerequisites
 
-* [Docker](https://docs.docker.com/get-docker/) installed.
-* [Docker Compose](https://docs.docker.com/compose/install/) installed.
+- [Docker](https://docs.docker.com/get-docker/) installed  
+- [Docker Compose](https://docs.docker.com/compose/install/) installed
 
 ### Setup
 
-1.  **Clone the repo:**
-    ```bash
-    git clone https://github.com/ignis621/watch-batch-transcode
-    cd watch-batch-transcode
-    ```
-2.  **Configure:** Edit the `docker-compose.yaml` file
+1. **Create a `docker-compose.yaml` file** using the template from the repo:
+   ```bash
+   curl -O https://raw.githubusercontent.com/ignis621/watch-batch-transcode/main/docker-compose.yaml
+   ```
 
-3.  **Build and run** Check [Running with Docker Compose](#running-with-docker-compose)
+2. **Configure it** to suit your needs - volumes, environment variables, etc.
 
 ### Running with Docker Compose
 
-1.  **Build and run:**
+1. **Run using the prebuilt Docker image:**
     ```bash
-    docker-compose up -d --build
+    docker-compose up -d
     ```
-    This will build the Docker image and start the container in detached mode (`-d`). You only need to build it once, afterwards use
-    ```bash
-    docker compose up -d
-    ```
+    This pulls the latest image from Docker Hub and starts the container in detached mode.
 
-2.  **Check logs:** To troubleshoot you can check the logs with
+2. **Check logs:**
     ```bash
     docker-compose logs -f
     ```
 
-3.  **Stop the container:**
+3. **Stop the container:**
     ```bash
     docker-compose down
     ```
+
+## Configuration
+
+Configuration is handled via environment variables in the `docker-compose.yaml` file. You can change:
+
+- Input/output directories  
+- Transcoding settings
+- ntfy.sh notifications
+- File handling (delete after transcoding)
 
 ## Configuration
 
@@ -123,6 +127,26 @@ To receive notifications on your phone or other devices via [ntfy.sh](https://nt
 3.  (Optional) If using a custom NTFY server, set the `NTFY_SERVER` environment variable to its address.
 
 Success and fail messages will be sent to your specified topic.
+
+## Building the Container
+
+If you want to build the image yourself instead of pulling from Docker Hub:
+
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/ignis621/watch-batch-transcode
+    cd watch-batch-transcode
+    ```
+
+2. **Build and run using the provided build config:**
+    ```bash
+    docker-compose -f docker-compose.build.yaml up -d --build
+    ```
+
+3. **Stop the container:**
+    ```bash
+    docker-compose -f docker-compose.build.yaml down
+    ```
 
 ## Contributing
 

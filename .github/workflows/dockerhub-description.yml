@@ -17,5 +17,5 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        repository: peterevans/dockerhub-description
+        repository: ignis621/watch-batch-transcode
         enable-url-completion: true

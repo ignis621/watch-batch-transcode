@@ -52,15 +52,6 @@ It is built on the [linuxserver.io FFmpeg base image](https://github.com/linuxse
 
 ## Configuration
 
-Configuration is handled via environment variables in the `docker-compose.yaml` file. You can change:
-
-- Input/output directories  
-- Transcoding settings
-- ntfy.sh notifications
-- File handling (delete after transcoding)
-
-## Configuration
-
 Configuration is done via environment variables set in the `docker-compose.yaml` file.
 
 | Environment Variable | Default Value     | Description                                                                                                  |

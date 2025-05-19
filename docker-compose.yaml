@@ -2,62 +2,85 @@ services:
   watch-batch-transcode:
     image: ignis621/watch-batch-transcode:latest
     container_name: watch-batch-transcode
+    restart: unless-stopped
+
     environment:
-      # User and group ID for file permissions (important for volume mounts)
-      # Replace with your user and group ids. use the 'id' command
-      - PUID=1000
-      - PGID=1000
+      # --- User and Group IDs for File Permissions ---
+      # Match these with the user running Docker/owning the host directories to avoid permission issues
+      # Get yours by running 'id -u' and 'id -g' on your host.
+      # Alternatively you can just chmod 777 -R data
+      PUID: 1000
+      PGID: 1000
 
       # Timezone setting (optional, for correct timestamps in logs and csv)
       # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-      - TZ=Europe/Warsaw # America/New_York, Asia/Tokyo
+      TZ: Etc/UTC # Europe/Warsaw, America/New_York, Asia/Tokyo
 
-      # Video codec to use (eg. libx265, libx264)
-      # - VIDEO_CODEC=libx265
-      # Constant rate factor (CRF) for video quality (lower = higher quality/size, higher = lower quality/size)
-      # sane range for libx265 is 18-24.
-      # - VIDEO_CRF=24
-      # Video encoding preset (controls speed vs compression efficiency)
-      # Options for libx265/libx264: ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-      # Slower presets give better compression at the same CRF, but take much longer.
-      # - VIDEO_PRESET=medium
+      # --- Individual FFmpeg Encoding Variables (easy basic configuration) ---
+      # These are used if OVERRIDE_ENCODE_ARGS is NOT set.
 
-      # Audio codec to use (eg. libopus, aac, ac3)
-      # - AUDIO_CODEC=libopus
-      # Audio bitrate (eg. 96k, 128k, 192k)
-      # - AUDIO_BITRATE=96k
+      # VIDEO_CODEC: "libx265"    # eg. libx265, libx264
+      # VIDEO_CRF: "22"           # 18-24 is a sane range for libx265 (lower = higher quality/size)
+      # VIDEO_PRESET: "medium"    # ultrafast, medium, slow, etc. (speed vs. compression, slower is better)
+      # AUDIO_CODEC: "libopus"    # eg. libopus, aac, ac3
+      # AUDIO_BITRATE: "96k"      # eg. 96k, 128k, 192k
 
-      # ntfy.sh topic for notifications (optional: uncomment and replace with your topic)
-      # Get a topic from ntfy.sh or your own ntfy server.
-      # - NTFY_TOPIC=replace_with_your_own_topic
-      # Custom ntfy.sh server instance (optional: uncomment and replace with your server url)
-      # - NTFY_SERVER="https://your.ntfy.server"
 
-      # Uncomment this to delete source files after processing. Setting this value to ANYTHING will enable it
-      # - DELETE_AFTER=1
+      # --- FFmpeg Encoding/Remuxing Overrides (advanced configuration) ---
+      # Uncomment these to entirely override the default FFmpeg arguments, including the above
 
+      # OVERRIDE_ENCODE_ARGS: "-c:v libx264 -b:v 2000k -preset slow -b:a 128k -c:a libvorbis"
+      # Don't change the OVERRIDE_REMUX_ARGS unless you *really* know what you're doing
+      # OVERRIDE_REMUX_ARGS: "-vcodec copy -acodec copy -movflags +faststart"
+
+
+      # --- Final output video container format ---
+
+      # FINAL_VIDEO_CONTAINER: "mp4" # eg. mp4, mkv, webm (defaults to mp4)
+
+
+      # --- Notifications (ntfy.sh) ---
+
+      # Uncomment and replace with your ntfy.sh topic for processing notifications.
+      # NTFY_TOPIC: "your_ntfy_topic_here"
+      # Uncomment and replace if you're using running your own ntfy server instance.
+      # NTFY_SERVER: "https://your.ntfy.server"
+
+
+      # --- Source file removal ---
+
+      # Uncomment this to delete the original source file after successful processing
+      # Setting this value to ANYTHING will enable it (eg. "1", "0", or "true").
+      # DELETE_AFTER: "1"
+
+    # --- Volume mounts ---
     volumes:
-      # Source directory -> where you place video files to be processed
+      # Input directory - place files here to be processed
       - ./data/sources:/sources:rw
 
-      # Processed sources directory: original files are moved here after being picked up
-      # They remain here by default after successful processing. Check delete_after env var
+      # Processed sources directory - original files are moved here after being picked up
+      # They remain here by default after successful processing unless DELETE_AFTER is set.
       - ./data/sources_processed:/sources_processed:rw
 
-      # Completed directory: successfully transcoded mp4 files and the CSV log are placed here.
+      # Completed directory: Successfully transcoded files and the CSV log are moved here
       - ./data/completed:/completed:rw
 
-      # Failed directory: Original files that failed all processing attempts are moved here.
+      # Failed directory: Original files that failed all processing attempts are moved here
       - ./data/failed:/failed:rw
 
-      # The /tmp directory is ephmeral but you might wanna map it if you're dealing with extremely large files
+      # Temporary directory: Used for intermediate files during transcoding.
+      # Explicitly mapping this is a good idea for extremely big files, or if /tmp on the host is on a faster drive than your other data volumes
       # - ./data/tmp:/tmp:rw
 
-    restart: unless-stopped
 
-    # Resource limits (optional: uncomment to limit CPU and memory usage)
+    # Resource limits - adjust these values based on your capacity and expected workload
     # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '2.0' # Limit to 2 CPU cores
-    #       memory: '4G' # Limit to 4GB of RAM
+    #  resources:
+    #    limits:
+    #      cpus: '4.0' # example: limit to 4 logical CPU cores
+    #      memory: '8G' # example: limit to 8GB of RAM
+
+    # Resource reservations - reserve minimum resources to guarantee performance
+    #    reservations:
+    #      cpus: '1.0'
+    #      memory: '2G'

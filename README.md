@@ -20,7 +20,7 @@ It is built on the [linuxserver.io FFmpeg base image](https://github.com/linuxse
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) installed  
+- [Docker](https://docs.docker.com/engine/install/) installed
 - [Docker Compose](https://docs.docker.com/compose/install/) installed
 
 ### Setup

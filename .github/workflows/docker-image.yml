@@ -4,8 +4,6 @@
 name: Build and Push Docker Image
 
 on:
-  schedule:
-    - cron: '0 4 * * *'  # Runs daily at 4:35 AM UTC
   push:
     branches: ["main"]
     paths-ignore:
